@@ -7,9 +7,9 @@ void map_init(map *mp)
         fprintf(stderr, "a null pointer was received as an argument");
         exit(EXIT_FAILURE);
     }
-    mp->root = NULL;
-    mp->end = (tnode *)malloc(sizeof(tnode));
-    if (!mp->end)
+    mp->root = mp->end = (tnode *)malloc(sizeof(tnode));
+    tnode_init(mp->root,0,0);
+    if (!mp->root)
     {
         fprintf(stderr, "bad alloc");
         exit(EXIT_FAILURE);
@@ -810,11 +810,15 @@ static void remove_end(map *mp)
         exit(EXIT_FAILURE);
     }
     tnode *node = mp->root;
-    if (node && node != mp->end)
+    if (node != mp->end)
     {
         while (node->right != mp->end) {
             node = node->right;
         }
         node->right = NULL;
+        mp->end->parent = NULL;
+    }
+    else {
+        mp->root = NULL;
     }
 }
