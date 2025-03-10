@@ -4,12 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct lnode    
+typedef struct lnode lnode;
+
+struct lnode    
 {
-    struct lnode *prev;
-    struct lnode *next;
+    lnode *prev;
+    lnode *next;
     int elem;
-} lnode;
+};
 
 typedef struct
 {
@@ -41,7 +43,7 @@ void lpush_back(list *, int);
 void lpush_front(list *, int);
 
 /* Inserts an element into a list before the iterator */
-void linsert(list *, list_iterator, int);
+void linsert(list *, const list_iterator, int);
 
 /* --------------------------------------------- */
 /*               Deleting elements               */
@@ -60,11 +62,21 @@ void lerase(list *, list_iterator);
 /*            Changing the size/capacity         */
 /* --------------------------------------------- */
 
+/* Changes the size of a list */
+void lresize(list *, size_t);
 
+/* Clears the list */
+void lclear(list *);
 
 /* --------------------------------------------- */
 /*                Other functions                */
 /* --------------------------------------------- */
+
+/* Replaces the value of the element pointed to by the iterator */
+void lset(list *, list_iterator *, int);
+
+/* Replaces the contents of a list with arg3, repeating it arg2 times */
+void lassign_single(list *, size_t, int);
 
 /* Returns the size of the list */
 size_t lsize(const list *);
@@ -79,6 +91,6 @@ list_iterator lend(const list *);
 void ladvance(list_iterator *, int);
 
 /* Returns the value of the element pointed to by the iterator (dereference iterator) */
-int derefit(const list_iterator);
+int lderef(const list_iterator);
 
 #endif

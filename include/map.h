@@ -16,19 +16,25 @@ typedef struct
     int second;
 } pair;
 
-typedef struct tnode
+typedef struct tnode tnode;
+
+struct tnode
 {
-    struct tnode *parent;   /* pointer to the parent */
-    struct tnode *left;     /* pointer to the left child */
-    struct tnode *right;    /* pointer to the right child */
-    tnode_colors color;     /* node color */
-    pair kv;                /* node storing key and value */
-} tnode;
+    tnode *parent;      /* pointer to the parent */
+    tnode *left;        /* pointer to the left child */
+    tnode *right;       /* pointer to the right child */
+    tnode_colors color; /* node color */
+    pair kv;            /* node storing key and value */
+};
 
 typedef struct
 {
     tnode *root;
+    tnode *end;         /* The next node after the last node in the tree */
+    size_t size;
 } map;
+
+typedef tnode * map_iterator;
 
 /* --------------------------------------------- */
 /*             Construct / destruct              */
@@ -40,34 +46,46 @@ void map_init(map *);
 /* Cleans up resources */
 void map_destroy(map *);
 
-/* Initializes a node */
-void tnode_init(tnode *, int, int);
-
 /* --------------------------------------------- */
-/*             Interaction with tree             */
+/*                Other functions                */
 /* --------------------------------------------- */
 
-/* Inserts a key-value pair into the tree */
-void minsert(map *, int, int);
+/* Inserts a key-value pair into the map */
+void minsert(map *, pair);
 
-/* Removes a node from the tree */
-void merase(map *, tnode *);
+/* Removes a node from the map */
+void merase(map *, map_iterator);
+
+/* Returns the number of map elements */
+size_t msize(map *);
+
+/* Returns an iterator pointing to the first element of the map */
+map_iterator mbegin(map *);
+
+/* Returns an iterator pointing to the element following the last one */
+map_iterator mend(map *);
+
+/* Moves the iterator by the specified number of elements */
+void madvance(map_iterator *, int);
 
 /* Prints a tree */
 void print_tree(map *);
 
-/* Searches the tree for a node corresponding to the specified key and returns it */
-tnode *mfind(map *, int);
+/* Searches the map for a node corresponding to the specified key and returns it */
+map_iterator mfind(map *, int);
 
-/* Gets the key from a node */
-int tnode_key(tnode *);
+/* Returns the key of the node pointed to by the iterator (dereference iterator) */
+int mderef_key(const map_iterator);
 
-/* Gets the value from a node */
-int tnode_value(tnode *);
+/* Returns the value of the node pointed to by the iterator (dereference iterator) */
+int mderef_val(const map_iterator);
 
 /* --------------------------------------------- */
 /*              Auxiliary functions              */
 /* --------------------------------------------- */
+
+/* Initializes a node */
+static void tnode_init(tnode *, int, int);
 
 /* Helper function for cleaning resources occupied by tree elements */
 static void remove_map_recoursive(tnode *);
@@ -98,5 +116,28 @@ static void right_rotate(map *, tnode *);
 
 /* Helper function for prints a tree */
 static void print_tree_helper(tnode *, unsigned);
+
+/* Moves the iterator to the next larger element */
+static void next_node(map_iterator *);
+
+/* Moves the iterator to the next smaller element */
+static void prev_node(map_iterator *);
+
+/* -------------------------------------------------------------------------------- */
+/*  These two functions are required for the mend(map *) function to work correctly */
+/*                Using the end element stored in the map structure and             */
+/*                     these two functions we can do the following:                 */
+/* -------------------------------------------------------------------------------- */
+/* map_iterator it = mend(my_map);                                                  */
+/* madvance(&it,-1);                                                                */
+/* -------------------------------------------------------------------------------- */
+/*        After this, the iterator it points to the last element of our map.        */
+/* -------------------------------------------------------------------------------- */
+
+/* Assign the "end" element to the right node of the last element */
+static void add_end(map *);
+
+/* Remove the "end" element to the right node of the last element */
+static void remove_end(map *);
 
 #endif

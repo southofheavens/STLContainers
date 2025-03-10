@@ -126,23 +126,23 @@ void verase(vector *vec, vec_iterator it)
     vec->size--;
 }
 
-void vresize(vector *vec, size_t newSize)
+void vresize(vector *vec, size_t new_size)
 {
     if (!vec)
     {
         fprintf(stderr, "vresize: a null pointer was received as an argument");
         exit(EXIT_FAILURE);
     }
-    if (newSize > vec->capacity)
+    if (new_size > vec->capacity)
     {
-        vec->capacity = newSize;
+        vec->capacity = new_size;
         vrealloc(vec, vec->capacity);
     }
     size_t i;
-    for (i = vec->size; i < newSize; ++i) {
+    for (i = vec->size; i < new_size; ++i) {
         vec->elems[i] = 0;
     }
-    vec->size = newSize;
+    vec->size = new_size;
 }
 
 void vclear(vector *vec)
@@ -155,16 +155,16 @@ void vclear(vector *vec)
     vec->size = 0;
 }
 
-void reserve(vector *vec, size_t elems)
+void reserve(vector *vec, size_t new_capacity)
 {
     if (!vec)
     {
         fprintf(stderr, "reserve: a null pointer was received as an argument");
         exit(EXIT_FAILURE);
     }
-    if (elems > vec->capacity)
+    if (new_capacity > vec->capacity)
     {
-        vec->capacity = elems;
+        vec->capacity = new_capacity;
         vrealloc(vec, vec->capacity);
     }
 }
