@@ -2,28 +2,23 @@
 
 void map_init(map *mp)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("map_init: a null pointer was "  
+        "received as an argument", 1, mp);
+
     mp->root = mp->end = (tnode *)malloc(sizeof(tnode));
+
+    check_null_pointers("bad alloc", 1, mp->root);
+
     tnode_init(mp->root,0,0);
-    if (!mp->root)
-    {
-        fprintf(stderr, "bad alloc");
-        exit(EXIT_FAILURE);
-    }
+
     mp->size = 0;
 }
 
 void map_destroy(map *mp)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("map_destroy: a null pointer was "  
+        "received as an argument", 1, mp);
+
     remove_end(mp);
     free(mp->end);
     remove_map_recoursive(mp->root);
@@ -31,19 +26,20 @@ void map_destroy(map *mp)
 
 void minsert(map *mp, pair kv)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("minsert: a null pointer was "  
+        "received as an argument", 1, mp);
+
     /* This function needs to be applied, as insertion may cause rebalancing */
-    /* and the current "last" node will become not "last" */
+    /* and the current last node will become not last */
     remove_end(mp); 
     if (mp->root == NULL)
     {
         mp->root = (tnode *)malloc(sizeof(tnode));
+        check_null_pointers("bad alloc", 1, mp->root);
+
         tnode_init(mp->root, kv.first, kv.second);
         mp->root->color = BLACK;
+        mp->size++;
     }
     else
     {
@@ -53,6 +49,8 @@ void minsert(map *mp, pair kv)
             if (kv.first < curr->kv.first && curr->left == NULL) /* move left */
             {
                 curr->left = (tnode *)malloc(sizeof(tnode));
+                check_null_pointers("bad alloc", 1, curr->left);
+
                 tnode_init(curr->left, kv.first, kv.second);
                 curr->left->parent = curr;
                 curr = curr->left;
@@ -62,6 +60,8 @@ void minsert(map *mp, pair kv)
             if (kv.first > curr->kv.first && curr->right == NULL) /* move right */
             {
                 curr->right = (tnode *)malloc(sizeof(tnode));
+                check_null_pointers("bad alloc", 1, curr->right);
+
                 tnode_init(curr->right, kv.first, kv.second);
                 curr->right->parent = curr;
                 curr = curr->right;
@@ -79,8 +79,15 @@ void minsert(map *mp, pair kv)
                 curr = curr->right;
             }
         }
+
+        /* If the element being inserted has a unique key in the tree, then we increase */ 
+        /* the size of the tree, since we inserted a new element. Otherwise, we do nothing, */
+        /* since if an element is inserted into the tree with a key that is already in the tree, */
+        /* the element is ignored */
+        if (!(curr && curr->kv.first == kv.first)) {
+            mp->size++;
+        }
     }
-    mp->size++;
     /* After a successful insertion and possible rebalancing, we again "hang" */
     /* end to the "last" element */
     add_end(mp);
@@ -88,11 +95,9 @@ void minsert(map *mp, pair kv)
 
 void merase(map *mp, map_iterator it)
 {
-    if (!mp || !it)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("merase: a null pointer was "  
+        "received as an argument", 2, mp, it);
+
     /* This function needs to be applied, as deletion may cause rebalancing */
     /* and the current "last" node will become not "last" */
     remove_end(mp);
@@ -126,21 +131,17 @@ void merase(map *mp, map_iterator it)
 
 size_t msize(map *mp)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("msize: a null pointer was "  
+        "received as an argument", 1, mp);
+
     return mp->size;
 }
 
 map_iterator mbegin(map *mp)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("mbegin: a null pointer was "  
+        "received as an argument", 1, mp);
+
     map_iterator it = mp->root;
     while (it && it->left) {
         it = it->left;
@@ -150,21 +151,17 @@ map_iterator mbegin(map *mp)
 
 map_iterator mend(map *mp)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("mend: a null pointer was "  
+        "received as an argument", 1, mp);
+
     return mp->end;
 }
 
 void madvance(map_iterator *it, int count)
 {
-    if (!it)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("madvance: a null pointer was "  
+        "received as an argument", 1, it);
+
     if (count > 0)
     {
         for (; count > 0; --count) {
@@ -181,22 +178,28 @@ void madvance(map_iterator *it, int count)
 
 void print_tree(map *mp)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("print_tree: a null pointer was "  
+        "received as an argument", 1, mp);
+
+    /* This function must be applied because the end node is not real and should */
+    /* not be output */
+    remove_end(mp);
+
     print_tree_helper(mp->root,0);
     printf("\n");
+
+    /* Аfter successfully print the tree, we hang back our end node */
+    add_end(mp);
 }
 
 map_iterator mfind(map *mp, int key)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("mfind: a null pointer was "  
+        "received as an argument", 1, mp);
+
+    /* This function needs to be applied because we can accidentally find our end node */ 
+    /* in the map, and this is not what we want to see as a result */
+    remove_end(mp);
     tnode *node = mp->root;
     while (node && node->kv.first != key) /* look for the required element */
     {
@@ -207,36 +210,24 @@ map_iterator mfind(map *mp, int key)
             node = node->left;
         }
     }
+    /* After finding the element we need, we hang our end element back */
+    add_end(mp);
     return node;
 }
 
-int mderef_key(const map_iterator it)
+pair mderef(const map_iterator it)
 {
-    if (!it)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
-    return it->kv.first;
-}
+    check_null_pointers("mderef: a null pointer was "  
+        "received as an argument", 1, it);
 
-int mderef_val(const map_iterator it)
-{
-    if (!it)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
-    return it->kv.second;
+    return it->kv;
 }
 
 static void tnode_init(tnode *node, int key, int value)
 {
-    if (!node)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("tnode_init: a null pointer was "  
+        "received as an argument", 1, node);
+
     node->parent = NULL;
     node->left = NULL;
     node->right = NULL;
@@ -257,11 +248,9 @@ static void remove_map_recoursive(tnode *root)
 
 static void rebalance_after_insert(map *mp, tnode *node)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("rebalance_after_insert: a null pointer was "  
+        "received as an argument", 2, mp, node);
+
     tnode *curr = node;
     tnode *parent = node->parent;
     tnode *grandpa = parent->parent;
@@ -337,11 +326,9 @@ static void rebalance_after_insert(map *mp, tnode *node)
 
 static void rebalance_after_erase(map *mp, tnode *node)
 {
-    if (!mp || !node)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("rebalance_after_erase: a null pointer was "  
+        "received as an argument", 2, mp, node);
+
     if (node == mp->root) {
         return;
     }
@@ -465,11 +452,9 @@ static void rebalance_after_erase(map *mp, tnode *node)
 
 static void erase_case1(map *mp, tnode *node)
 {
-    if (!mp || !node)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("erase_case1: a null pointer was "  
+        "received as an argument", 2, mp, node);
+
     if (node->kv.first < node->parent->kv.first) { /* if node is the left child */
         node->parent->left = NULL;
     }
@@ -481,11 +466,9 @@ static void erase_case1(map *mp, tnode *node)
 
 static void erase_case2(map *mp, tnode *node)
 {
-    if (!mp || !node)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("erase_case2: a null pointer was "  
+        "received as an argument", 2, mp, node);
+
     tnode *min_of_right = node->right;
     while (min_of_right->left != NULL) { /* look for the minimum element from the right subtree */
         min_of_right = min_of_right->left;
@@ -510,11 +493,9 @@ static void erase_case2(map *mp, tnode *node)
 
 static void erase_case3(map *mp, tnode *node)
 {
-    if (!mp || !node)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("erase_case3: a null pointer was "  
+        "received as an argument", 2, mp, node);
+
     if (node == mp->root)
     {
         free(node);
@@ -543,11 +524,9 @@ static void erase_case3(map *mp, tnode *node)
 
 static void erase_case4(map *mp, tnode *node)
 {
-    if (!mp || !node)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("erase_case4: a null pointer was "  
+        "received as an argument", 2, mp, node);
+
     if (node->parent && node->parent->right == node) /* if node is the right child */
     {
         if (node->left) /* if the child is on the left */
@@ -645,11 +624,9 @@ static void erase_case4(map *mp, tnode *node)
 
 static void left_rotate(map *mp, tnode *node)
 {
-    if (!mp || !node)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("left_rotate: a null pointer was "  
+        "received as an argument", 2, mp, node);
+
     tnode *curr = node;
     tnode *right_son = curr->right;
     tnode *left_son_of_right_son = right_son->left;
@@ -683,11 +660,9 @@ static void left_rotate(map *mp, tnode *node)
 
 static void right_rotate(map *mp, tnode *node)
 {
-    if (!mp || !node)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("right_rotate: a null pointer was "  
+        "received as an argument", 2, mp, node);
+
     tnode *curr = node;
     tnode *left_son = curr->left;
     tnode *right_son_of_left_son = left_son->right;
@@ -737,11 +712,9 @@ static void print_tree_helper(tnode *node, unsigned depth)
 
 static void next_node(map_iterator *it)
 {
-    if (!it)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("next_node: a null pointer was "  
+        "received as an argument", 1, it);
+
     if ((*it)->right)
     {
         *it = (*it)->right;
@@ -760,11 +733,9 @@ static void next_node(map_iterator *it)
 
 static void prev_node(map_iterator *it)
 {
-    if (!it)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("prev_node: a null pointer was "  
+        "received as an argument", 1, it);
+
     if ((*it)->left)
     {
         *it = (*it)->left;
@@ -783,11 +754,9 @@ static void prev_node(map_iterator *it)
 
 static void add_end(map *mp)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("add_end: a null pointer was "  
+        "received as an argument", 1, mp);
+
     tnode *node = mp->root;
     if (!node) {
         mp->root = mp->end;
@@ -804,11 +773,9 @@ static void add_end(map *mp)
 
 static void remove_end(map *mp)
 {
-    if (!mp)
-    {
-        fprintf(stderr, "a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
+    check_null_pointers("remove_end: a null pointer was "  
+        "received as an argument", 1, mp);
+
     tnode *node = mp->root;
     if (node != mp->end)
     {

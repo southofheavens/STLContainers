@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
+#include "utility.h"
 
 #define VEC_INIT_CAPACITY 8
 
@@ -69,7 +70,7 @@ int *data(const vector *);
 /* Replaces the contents of a vector with arg3, repeating it arg2 times */
 void vassign_single(vector *, size_t, int);
 
-/* Replaces the contents of a vector with elements from the range specified by iterators */
+/* Replaces the contents of a vector with elements from a half-open range ("[a,b)") specified by iterators */
 void vassign_range(vector *, const vec_iterator, const vec_iterator);
 
 /* Returns the size of the vector */

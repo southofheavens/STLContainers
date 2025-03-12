@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "utility.h"
 
 typedef enum
 {
@@ -74,11 +75,8 @@ void print_tree(map *);
 /* Searches the map for a node corresponding to the specified key and returns it */
 map_iterator mfind(map *, int);
 
-/* Returns the key of the node pointed to by the iterator (dereference iterator) */
-int mderef_key(const map_iterator);
-
-/* Returns the value of the node pointed to by the iterator (dereference iterator) */
-int mderef_val(const map_iterator);
+/* Returns the key-value pair of the node pointed to by the iterator (dereference iterator) */
+pair mderef(const map_iterator);
 
 /* --------------------------------------------- */
 /*              Auxiliary functions              */

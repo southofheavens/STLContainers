@@ -255,9 +255,9 @@ void lclear(list *lst)
     }
 }
 
-void lset(list *lst, list_iterator *it, int new_val)
+void lset(list_iterator *it, int new_val)
 {
-    if (!lst || !it)
+    if (!it)
     {
         fprintf(stderr, "lset: a null pointer was received as an argument");
         exit(EXIT_FAILURE);
@@ -267,7 +267,75 @@ void lset(list *lst, list_iterator *it, int new_val)
 
 void lassign_single(list *lst, size_t count, int elem)
 {
+    if (!lst)
+    {
+        fprintf(stderr, "lassign_single: a null pointer was received as an argument");
+        exit(EXIT_FAILURE);
+    }
+    size_t i, list_size;
+    list_iterator it;
 
+    if (count >= lst->size)
+    {
+        for (it = lbegin(lst); it != lend(lst); ladvance(&it,1)) {
+            lset(&it, elem);
+        }
+        for (i = 0, list_size = lsize(lst); i < count - list_size; ++i) {
+            lpush_back(lst,elem);
+        }
+    }
+    else
+    {
+        for (i = 0, list_size = lsize(lst); i < list_size - count; ++i) {
+            lpop_back(lst);
+        }
+        for (it = lbegin(lst); it != lend(lst); ladvance(&it,1)) {
+            lset(&it, elem);
+        }
+    }
+}
+
+void lassign_range(list *lst, const list_iterator begin, const list_iterator end)
+{
+    check_null_pointers("lassign_range: a null pointer was "
+        "received as an argument", 3, lst, begin, end);
+
+    /* lit is a begin iterator for the list to be filled */
+    /* b is a copy of the begin iterator from the half-open range */
+    /* the copy is needed because the iterator from the arguments is */
+    /* constant and we cannot apply ladvance to it */
+    list_iterator lit, b; 
+    lit = lbegin(lst);
+    b = begin;
+
+    /* Number of elements in a half-open range begin-end */
+    size_t elems_count;
+    elems_count = 0;
+
+    while (b != end)
+    {
+        if (lit == lend(lst)) {
+            lpush_back(lst,lderef(b));
+        }
+        else {
+            lset(&lit,lderef(b));
+        }
+        if (lit != lst->end) {
+            ladvance(&lit,1);
+        }
+        ladvance(&b,1);
+        elems_count++;
+    }
+    if (lsize(lst) > elems_count)
+    {
+        size_t i, ls;
+        i = 0;
+        ls = lsize(lst);
+
+        for (i = 0; i < ls - elems_count; ++i) {
+            lpop_back(lst);
+        }
+    }
 }
 
 size_t lsize(const list *lst)
@@ -325,7 +393,7 @@ int lderef(const list_iterator it)
 {
     if (!it)
     {
-        fprintf(stderr, "deref_it: a null pointer was received as an argument");
+        fprintf(stderr, "lderef: a null pointer was received as an argument");
         exit(EXIT_FAILURE);
     }
     return it->elem;

@@ -4,32 +4,38 @@ CFLAGS = -ansi
 SRC_DIR = src
 INC_DIR = include
 BUILD_DIR = build
+LIB_DIR = lib
+TESTS_DIR = tests
 
-OBJ_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/vector.o $(BUILD_DIR)/map.o $(BUILD_DIR)/list.o
+MAIN_SRC = main.c
+MAIN_BIN = main
+CONTAINERS_LIB = $(LIB_DIR)/libcontainers.so
+TESTS_SRC = $(TESTS_DIR)/tests.c
+TESTS_BIN = $(TESTS_DIR)/tests
 
-TARGET = main
+OBJ_FILES = $(BUILD_DIR)/vector.o $(BUILD_DIR)/map.o $(BUILD_DIR)/list.o $(BUILD_DIR)/utility.o
 
-all: $(BUILD_DIR) $(TARGET)
+all: $(MAIN_BIN) $(CONTAINERS_LIB) $(TESTS_BIN)
 
-$(TARGET): $(OBJ_FILES)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ_FILES)
+$(MAIN_BIN): $(MAIN_SRC) $(CONTAINERS_LIB)
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -L./$(LIB_DIR) -lcontainers $< -o $@
 
-$(BUILD_DIR)/main.o: main.c $(INC_DIR)/vector.h $(INC_DIR)/map.h $(INC_DIR)/list.h
-	$(CC) $(CFLAGS) -c main.c -o $(BUILD_DIR)/main.o
+$(CONTAINERS_LIB): $(OBJ_FILES)
+	@mkdir -p $(LIB_DIR)
+	$(CC) $(CFLAGS) -shared -fPIC $^ -o $@
 
-$(BUILD_DIR)/vector.o: $(SRC_DIR)/vector.c $(INC_DIR)/vector.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/vector.c -o $(BUILD_DIR)/vector.o
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/map.o: $(SRC_DIR)/map.c $(INC_DIR)/map.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/map.c -o $(BUILD_DIR)/map.o
+run_tests: $(TESTS_BIN)
+	./$(TESTS_BIN)
 
-$(BUILD_DIR)/list.o: $(SRC_DIR)/list.c $(INC_DIR)/list.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/list.c -o $(BUILD_DIR)/list.o
-
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+$(TESTS_BIN): $(TESTS_SRC) $(CONTAINERS_LIB)
+	$(CC) $(CFLAGS) -L./$(LIB_DIR) -lcontainers $< -o $@
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET)
+	rm -rf $(BUILD_DIR)
 
-.PHONY: all clean
+.PHONY: all run_tests clean

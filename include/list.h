@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "utility.h"
 
 typedef struct lnode lnode;
 
@@ -73,10 +74,13 @@ void lclear(list *);
 /* --------------------------------------------- */
 
 /* Replaces the value of the element pointed to by the iterator */
-void lset(list *, list_iterator *, int);
+void lset(list_iterator *, int);
 
 /* Replaces the contents of a list with arg3, repeating it arg2 times */
 void lassign_single(list *, size_t, int);
+
+/* Replaces the contents of a list with elements from a half-open range ("[a,b)") specified by iterators */
+void lassign_range(list *, const list_iterator, const list_iterator);
 
 /* Returns the size of the list */
 size_t lsize(const list *);
