@@ -255,14 +255,45 @@ void lclear(list *lst)
     }
 }
 
-void lset(list_iterator *it, int new_val)
+int lfront(list *lst)
+{
+    check_null_pointers("lfront: a null pointer was " 
+        "received as an argument", 1, lst);
+
+    if (lempty(lst)) 
+    {
+        fprintf(stderr, "lfront: list is empty");
+        exit(EXIT_FAILURE);
+    }
+
+    return lderef(lbegin(lst));
+}
+
+int lback(list *lst)
+{
+    check_null_pointers("lback: a null pointer was " 
+        "received as an argument", 1, lst);
+
+    if (lempty(lst)) 
+    {
+        fprintf(stderr, "lback: list is empty");
+        exit(EXIT_FAILURE);
+    }
+
+    list_iterator it = lend(lst);
+    ladvance(&it,-1);
+
+    return lderef(it);
+}
+
+void lset(list_iterator it, int new_val)
 {
     if (!it)
     {
         fprintf(stderr, "lset: a null pointer was received as an argument");
         exit(EXIT_FAILURE);
     }
-    (*it)->elem = new_val;
+    it->elem = new_val;
 }
 
 void lassign_single(list *lst, size_t count, int elem)
@@ -278,7 +309,7 @@ void lassign_single(list *lst, size_t count, int elem)
     if (count >= lst->size)
     {
         for (it = lbegin(lst); it != lend(lst); ladvance(&it,1)) {
-            lset(&it, elem);
+            lset(it, elem);
         }
         for (i = 0, list_size = lsize(lst); i < count - list_size; ++i) {
             lpush_back(lst,elem);
@@ -290,7 +321,7 @@ void lassign_single(list *lst, size_t count, int elem)
             lpop_back(lst);
         }
         for (it = lbegin(lst); it != lend(lst); ladvance(&it,1)) {
-            lset(&it, elem);
+            lset(it, elem);
         }
     }
 }
@@ -318,9 +349,9 @@ void lassign_range(list *lst, const list_iterator begin, const list_iterator end
             lpush_back(lst,lderef(b));
         }
         else {
-            lset(&lit,lderef(b));
+            lset(lit,lderef(b));
         }
-        if (lit != lst->end) {
+        if (lit != lend(lst)) {
             ladvance(&lit,1);
         }
         ladvance(&b,1);
@@ -336,16 +367,6 @@ void lassign_range(list *lst, const list_iterator begin, const list_iterator end
             lpop_back(lst);
         }
     }
-}
-
-size_t lsize(const list *lst)
-{
-    if (!lst)
-    {
-        fprintf(stderr, "lsize: a null pointer was received as an argument");
-        exit(EXIT_FAILURE);
-    }
-    return lst->size;
 }
 
 list_iterator lbegin(const list *lst)
@@ -397,4 +418,146 @@ int lderef(const list_iterator it)
         exit(EXIT_FAILURE);
     }
     return it->elem;
+}
+
+size_t lsize(const list *lst)
+{
+    if (!lst)
+    {
+        fprintf(stderr, "lsize: a null pointer was received as an argument");
+        exit(EXIT_FAILURE);
+    }
+    return lst->size;
+}
+
+unsigned lempty(const list *lst)
+{
+    check_null_pointers("lempty: a null pointer was "
+        "received as an argument", 1, lst);
+
+    return (lst->head == lst->end);
+}
+
+void lsort(list *lst)
+{
+    check_null_pointers("lsort: a null pointer was "
+        "received as an argument", 1, lst);
+
+    if (lst->size == 0) { 
+        return; 
+    }
+    /* "drop" the end for correct operation of functions */
+    lst->end->prev->next = NULL;
+    lst->head = merge_sort(lst->head);
+
+    lnode *curr = lst->head;
+    while (curr->next)
+    {
+        curr->next->prev = curr;
+        curr = curr->next;
+    }
+    curr->next = lst->end;
+    lst->end->prev = curr;
+    lst->head->prev = NULL;
+}
+
+static lnode *merge_sort(lnode *head)
+{
+    lnode *first_half_end = get_middle(head);
+
+    if (first_half_end->next == NULL) {
+        return merge(head, NULL);
+    }
+    else
+    {
+        lnode *first_half = head;
+        lnode *second_half = first_half_end->next;
+        /* "break" the list */
+        first_half_end->next = NULL;
+
+        lnode *left = merge_sort(first_half);
+        lnode *right = merge_sort(second_half);
+        return merge(left,right);
+    }
+}
+
+static lnode *merge(lnode *first_head, lnode *second_head)
+{
+    lnode *head, *prev, *curr;
+    head = NULL;
+    while (first_head || second_head)
+    {
+        if (first_head)
+        {
+            if (second_head)
+            {
+                if (first_head->elem < second_head->elem) 
+                {
+                    curr = first_head;
+                    first_head = first_head->next;
+                }
+                else 
+                {
+                    curr = second_head;
+                    second_head = second_head->next;
+                }
+            }
+            else 
+            {
+                curr = first_head;
+                if (head == NULL)
+                {
+                    head = curr;
+                    break;
+                }
+                else
+                {
+                    prev->next = curr;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            curr = second_head;
+            if (head == NULL)
+            {
+                head = curr;
+                break;
+            }
+            else
+            {
+                prev->next = curr;
+                break;
+            }
+        }
+        
+        if (head == NULL) 
+        {
+            head = curr;
+            prev = head;
+        }
+        else
+        {
+            prev->next = curr;
+            prev = prev->next;
+        }
+    }
+
+    return head;
+}
+
+static lnode *get_middle(lnode *head)
+{
+    lnode *slow, *fast;
+    slow = head;
+    fast = head;
+
+    while (fast->next && fast->next->next)
+    {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    return slow;
 }

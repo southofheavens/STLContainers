@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "utility.h"
 
 typedef struct lnode lnode;
@@ -60,7 +61,7 @@ void lpop_front(list *);
 void lerase(list *, list_iterator);
 
 /* --------------------------------------------- */
-/*            Changing the size/capacity         */
+/*               Changing the size               */
 /* --------------------------------------------- */
 
 /* Changes the size of a list */
@@ -70,11 +71,21 @@ void lresize(list *, size_t);
 void lclear(list *);
 
 /* --------------------------------------------- */
-/*                Other functions                */
+/*               Access to elements              */
+/* --------------------------------------------- */
+
+/* Returns the first element of the list */
+int lfront(list *);
+
+/* Returns the last element of the list */
+int lback(list *);
+
+/* --------------------------------------------- */
+/*               Changing elements               */
 /* --------------------------------------------- */
 
 /* Replaces the value of the element pointed to by the iterator */
-void lset(list_iterator *, int);
+void lset(list_iterator, int);
 
 /* Replaces the contents of a list with arg3, repeating it arg2 times */
 void lassign_single(list *, size_t, int);
@@ -82,8 +93,9 @@ void lassign_single(list *, size_t, int);
 /* Replaces the contents of a list with elements from a half-open range ("[a,b)") specified by iterators */
 void lassign_range(list *, const list_iterator, const list_iterator);
 
-/* Returns the size of the list */
-size_t lsize(const list *);
+/* --------------------------------------------- */
+/*             Working with iterators            */
+/* --------------------------------------------- */
 
 /* Returns an iterator pointing to the first element of the list */
 list_iterator lbegin(const list *);
@@ -96,5 +108,38 @@ void ladvance(list_iterator *, int);
 
 /* Returns the value of the element pointed to by the iterator (dereference iterator) */
 int lderef(const list_iterator);
+
+/* --------------------------------------------- */
+/*               List information                */
+/* --------------------------------------------- */
+
+/* Returns the size of the list */
+size_t lsize(const list *);
+
+/* Returns a positive value if the vector is empty and zero otherwise */
+unsigned lempty(const list *); 
+
+/* --------------------------------------------- */
+/*               Sorting / search                */
+/* --------------------------------------------- */
+
+/* Sorts a list */
+void lsort(list *);
+
+/* Searches for an element in a list and returns an iterator pointing to the element */
+/* list_iterator vfind(const list *, int); */
+
+/* --------------------------------------------- */
+/*              Auxiliary functions              */
+/* --------------------------------------------- */
+
+/* Helper recursive function for sorting a list */
+static lnode *merge_sort(lnode *);
+
+/* Takes pointers to the beginning of lists and merges them into a single sorted list */
+static lnode *merge(lnode *, lnode *);
+
+/* Takes a pointer to the head of the list, returns a pointer to the center element */
+static lnode *get_middle(lnode *);
 
 #endif

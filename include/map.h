@@ -48,14 +48,29 @@ void map_init(map *);
 void map_destroy(map *);
 
 /* --------------------------------------------- */
-/*                Other functions                */
+/*                Adding elements                */
 /* --------------------------------------------- */
 
 /* Inserts a key-value pair into the map */
 void minsert(map *, pair);
 
+/* --------------------------------------------- */
+/*               Deleting elements               */
+/* --------------------------------------------- */
+
 /* Removes a node from the map */
 void merase(map *, map_iterator);
+
+/* --------------------------------------------- */
+/*                Changing the size              */
+/* --------------------------------------------- */
+
+/* Clears the map */
+void mclear(map *);
+
+/* --------------------------------------------- */
+/*                Other functions                */
+/* --------------------------------------------- */
 
 /* Returns the number of map elements */
 size_t msize(map *);

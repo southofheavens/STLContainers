@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -ansi
+CFLAGS = -ansi 
 
 SRC_DIR = src
 INC_DIR = include
@@ -7,19 +7,15 @@ BUILD_DIR = build
 LIB_DIR = lib
 TESTS_DIR = tests
 
-MAIN_SRC = main.c
-MAIN_BIN = main
 CONTAINERS_LIB = $(LIB_DIR)/libcontainers.so
-TESTS_SRC = $(TESTS_DIR)/tests.c
-TESTS_BIN = $(TESTS_DIR)/tests
 
-OBJ_FILES = $(BUILD_DIR)/vector.o $(BUILD_DIR)/map.o $(BUILD_DIR)/list.o $(BUILD_DIR)/utility.o
+SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
+OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 
-all: $(MAIN_BIN) $(CONTAINERS_LIB) $(TESTS_BIN)
+TESTS_SRC_FILES = $(wildcard $(TESTS_DIR)/*.c)
+TESTS_BIN_FILES = $(patsubst $(TESTS_DIR)/%.c, $(TESTS_DIR)/%, $(TESTS_SRC_FILES))
 
-$(MAIN_BIN): $(MAIN_SRC) $(CONTAINERS_LIB)
-	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) -L./$(LIB_DIR) -lcontainers $< -o $@
+all: $(CONTAINERS_LIB) $(TESTS_BIN_FILES)
 
 $(CONTAINERS_LIB): $(OBJ_FILES)
 	@mkdir -p $(LIB_DIR)
@@ -29,13 +25,19 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-run_tests: $(TESTS_BIN)
-	./$(TESTS_BIN)
+containers: $(CONTAINERS_LIB)
 
-$(TESTS_BIN): $(TESTS_SRC) $(CONTAINERS_LIB)
+run_tests: $(TESTS_BIN_FILES)
+	@for test in $^; do ./$$test; done
+
+$(TESTS_DIR)/%: $(TESTS_DIR)/%.c $(CONTAINERS_LIB)
 	$(CC) $(CFLAGS) -L./$(LIB_DIR) -lcontainers $< -o $@
 
 clean:
-	rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)
 
-.PHONY: all run_tests clean
+clean_all: clean
+	@rm -rf $(LIB_DIR)
+	@rm $(TESTS_BIN_FILES)
+
+.PHONY: all containers run_tests clean clean_all

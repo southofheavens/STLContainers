@@ -129,6 +129,18 @@ void merase(map *mp, map_iterator it)
     add_end(mp);
 }
 
+void mclear(map *mp)
+{
+    check_null_pointers("mclear: a null pointer was "  
+        "received as an argument", 1, mp);
+    
+    remove_end(mp);
+    remove_map_recoursive(mp->root);
+    mp->root = NULL;
+    mp->size = 0;
+    add_end(mp);
+}
+
 size_t msize(map *mp)
 {
     check_null_pointers("msize: a null pointer was "  
