@@ -2,9 +2,6 @@
 #define LIST_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include "utility.h"
 
 typedef struct lnode lnode;
 
@@ -39,13 +36,13 @@ void list_destroy(list *);
 /* --------------------------------------------- */
 
 /* Adds an element to the end of the list */
-void lpush_back(list *, int);
+void lpush_back(list *, const int);
 
 /* Adds an element to the beginning of the list */
-void lpush_front(list *, int);
+void lpush_front(list *, const int);
 
 /* Inserts an element into a list before the iterator */
-void linsert(list *, const list_iterator, int);
+void linsert(list *, const list_iterator, const int);
 
 /* --------------------------------------------- */
 /*               Deleting elements               */
@@ -65,7 +62,7 @@ void lerase(list *, list_iterator);
 /* --------------------------------------------- */
 
 /* Changes the size of a list */
-void lresize(list *, size_t);
+void lresize(list *, const size_t);
 
 /* Clears the list */
 void lclear(list *);
@@ -85,13 +82,17 @@ int lback(list *);
 /* --------------------------------------------- */
 
 /* Replaces the value of the element pointed to by the iterator */
-void lset(list_iterator, int);
+void lset(list_iterator, const int);
 
 /* Replaces the contents of a list with arg3, repeating it arg2 times */
-void lassign_single(list *, size_t, int);
+void lassign_single(list *, const size_t, const int);
 
-/* Replaces the contents of a list with elements from a half-open range ("[a,b)") specified by iterators */
+/* Replaces the contents of a list with elements from a half-open range ("[a,b)") */
+/* specified by iterators */
 void lassign_range(list *, const list_iterator, const list_iterator);
+
+/* Swaps the contents of two lists */
+void lswap(list *, list *);
 
 /* --------------------------------------------- */
 /*             Working with iterators            */
@@ -104,7 +105,7 @@ list_iterator lbegin(const list *);
 list_iterator lend(const list *);
 
 /* Moves the iterator by the specified number of elements */
-void ladvance(list_iterator *, int);
+void ladvance(list_iterator *, const int);
 
 /* Returns the value of the element pointed to by the iterator (dereference iterator) */
 int lderef(const list_iterator);
@@ -124,20 +125,21 @@ unsigned lempty(const list *);
 /* --------------------------------------------- */
 
 /* Sorts a list */
-void lsort(list *);
+void lsort(list *, const int (*)(const void *, const void *));
 
-/* Searches for an element in a list and returns an iterator pointing to the element */
-/* list_iterator vfind(const list *, int); */
+/* Searches for an element in a list and returns an iterator pointing to the first */
+/* occurrence of the element */
+list_iterator lfind(const list *, const int); 
 
 /* --------------------------------------------- */
 /*              Auxiliary functions              */
 /* --------------------------------------------- */
 
 /* Helper recursive function for sorting a list */
-static lnode *merge_sort(lnode *);
+static lnode *merge_sort(lnode *, const int (*)(const void *, const void *));
 
 /* Takes pointers to the beginning of lists and merges them into a single sorted list */
-static lnode *merge(lnode *, lnode *);
+static lnode *merge(lnode *, lnode *, const int (*)(const void *, const void *));
 
 /* Takes a pointer to the head of the list, returns a pointer to the center element */
 static lnode *get_middle(lnode *);

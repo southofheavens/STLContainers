@@ -5,6 +5,8 @@
 #define RED   "\x1B[31m"
 #define GREEN "\x1B[32m"
 
+/* --------------------------------------------------------------------------- */
+
 /* comparator for sorting (ascending) */
 int comp_asc(const void *f, const void *s)
 {
@@ -17,9 +19,13 @@ int comp_desc(const void *f, const void *s)
     return (*(int *)s - *(int *)f);
 }
 
+/* --------------------------------------------------------------------------- */
+
 int main(void)
 {
     printf(GREEN "RUNNING VECTOR TESTS" RED "\n");
+
+    /* --------------------------------------------- */
 
     vector *vec = (vector *)malloc(sizeof(vector));
     vector_init(vec);
@@ -79,7 +85,7 @@ int main(void)
     vector_destroy(vec);
     free(vec);
 
-    /* ------------------------------------------------------------------------------------------ */
+    /* --------------------------------------------- */
 
     vector *vec1 = (vector *)malloc(sizeof(vector));
     vector_init(vec1);
@@ -128,7 +134,7 @@ int main(void)
     vector_destroy(vec1);
     free(vec1);
 
-    /* ------------------------------------------------------------------------------------------ */
+    /* --------------------------------------------- */
 
     vector *vec3 = (vector *)malloc(sizeof(vector));
     vector_init(vec3);
@@ -172,7 +178,7 @@ int main(void)
     vector_destroy(vec3);
     free(vec3);
 
-    /* ------------------------------------------------------------------------------------------ */
+    /* --------------------------------------------- */
 
     vector *vec5 = (vector *)malloc(sizeof(vector));
     vector_init(vec5);
@@ -191,7 +197,7 @@ int main(void)
     vector_destroy(vec5);
     free(vec5);
 
-    /* ------------------------------------------------------------------------------------------ */
+    /* --------------------------------------------- */
 
     vector *vec6 = (vector *)malloc(sizeof(vector));
     vector_init(vec6);
@@ -221,7 +227,7 @@ int main(void)
     vector_destroy(vec6);
     free(vec6);
 
-    /* ------------------------------------------------------------------------------------------ */
+    /* --------------------------------------------- */
 
     vector *vec7 = (vector *)malloc(sizeof(vector));
     vector_init(vec7);
@@ -252,10 +258,9 @@ int main(void)
     vector_destroy(vec7);
     free(vec7);
 
-    /* ------------------------------------------------------------------------------------------ */
+    /* --------------------------------------------- */
 
     printf(GREEN "ALL TESTS WITH VECTOR PASSED SUCCESSFULLY" RED "\n");
-
 
     return EXIT_SUCCESS;
 }

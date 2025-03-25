@@ -2,8 +2,6 @@
 #define UTILITY_H
 
 #include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
 
 /*  Takes as arguments an error message and the number of pointers passed to  */
 /*   the function that need to be checked for zero. If at least one pointer   */

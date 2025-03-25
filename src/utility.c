@@ -1,4 +1,6 @@
 #include "../include/utility.h"
+#include <stdarg.h>
+#include <stdlib.h>
 
 void check_null_pointers(char *msg, size_t arg_count, ...)
 {
