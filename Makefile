@@ -26,7 +26,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-containers: $(CONTAINERS_LIB)
+ccontainers: $(CONTAINERS_LIB)
 
 run_tests: $(TESTS_BIN_FILES)
 	@for test in $^; do ./$$test; done
